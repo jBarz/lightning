@@ -180,6 +180,18 @@ static void json_invoice(struct command *cmd,
 		b11->description = tal_strndup(b11, buffer + desc->start,
 					       desc->end - desc->start);
 
+	/* fallback address */
+	if (fallback) {
+                struct bitcoin_address pkh;
+                bool testnet;
+		if (!bitcoin_from_base58(&testnet, &pkh, buffer + fallback->start,
+					 fallback->end - fallback->start)) {
+			command_fail(cmd, "Invalid fallback address");
+			return;
+		}
+		b11->fallback = scriptpubkey_p2pkh(b11, &pkh);
+	}
+
 	/* FIXME: add private routes if necessary! */
 	b11enc = bolt11_encode(cmd, b11, false, hsm_sign_b11, cmd->ld);
 
