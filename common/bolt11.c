@@ -823,10 +823,10 @@ static void encode_f(u5 **data, const u8 *fallback)
          * or `18` followed by a script hash.
          */
         if (is_p2pkh(fallback, &pkh)) {
-                u8 v17[1 + sizeof(pkh)];
-                v17[0] = 17;
-                memcpy(v17+1, &pkh, sizeof(pkh));
-                push_field(data, 'f', v17, sizeof(v17) * CHAR_BIT);
+                push_varlen_uint(data, bech32_charset_rev[(unsigned char)'f'], 5);
+                push_varlen_uint(data, ((5 + sizeof(pkh) * CHAR_BIT)+ 4) / 5, 10);
+                push_varlen_uint(data, 17, 5);
+                push_bits(data, &pkh, sizeof(pkh) * CHAR_BIT);
         } else if (is_p2sh(fallback, &sh)) {
                 u8 v18[1 + sizeof(sh)];
                 v18[0] = 18;
